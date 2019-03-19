@@ -59,7 +59,11 @@
                     api: api,
                     version: version,
                     method: method
-                  }, params);
+				  }, params);
+				  
+				  //Prevent multiple authentications by adding the _sid in case of existing sessions
+				  if(this.syno.sessions[options.sessionName]) qs['_sid'] = this.syno.sessions[options.sessionName];
+
                   return this.syno.request({
                     url: url,
                     qs: qs
@@ -209,11 +213,8 @@
                   };
                   if (!this.syno.sessions) {
                     this.syno.sessions = {};
-                  }
-                  if (!this.syno.sessions[sessionName]) {
-                    this.syno.sessions[sessionName] = {};
-                  }
-                  this.syno.sessions[sessionName]['_sid'] = null;
+				  }
+                  this.syno.sessions[sessionName] = null;	//Havock94 - No need to have an object for each session name
                   return this.request({
                     api: api,
                     version: version,
@@ -293,8 +294,9 @@
                 AuthenticatedAPI.prototype.request = function(options, done) {
                   if (done == null) {
                     done = noop;
-                  }
-                  if (this.syno.sessions && this.syno.sessions[options.sessionName] && this.syno.sessions[options.sessionName]['_sid']) {
+				  }
+
+                  if (this.syno.sessions && this.syno.sessions[options.sessionName]){	//Havock94 - Only check if session has value
                     return AuthenticatedAPI.__super__.request.call(this, options, done);
                   } else {
                     return this.syno.auth.login(options.sessionName, (function(_this) {
