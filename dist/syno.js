@@ -202,14 +202,14 @@
         
                 path = 'auth.cgi';
         
-                Auth.prototype.login = function(sessionName, done) {
+                Auth.prototype.login = function(sessionName, done, useCookie) {
                   var method, params;
                   method = 'login';
                   params = {
                     account: this.syno.account,
                     passwd: this.syno.passwd,
                     session: sessionName,
-                    format: 'sid'
+                    format: useCookie ? 'cookie' : 'sid'
                   };
                   if (!this.syno.sessions) {
                     this.syno.sessions = {};
